@@ -1,4 +1,4 @@
-import { Subscription } from 'rxjs';
+import { Subscription, from } from 'rxjs';
 import { ShoppingListService } from "./../shopping-list.service";
 import { Ingredient } from "./../../shared/ingredient.model";
 import { Component, OnInit, OnDestroy, ViewChild } from "@angular/core";
@@ -32,18 +32,30 @@ export class ShoppingEditComponent implements OnInit, OnDestroy {
       });
   }
 
-  onAddItem(form: NgForm) {
+  onSubmit(form: NgForm) {
     const value = form.value;
     const newIngredient = new Ingredient(value.name, value.amount);
     if (this.editMode) {
       this.slService.updateIngredient(this.editModeIndex, newIngredient)
     } else {
-
       this.slService.addIngredient(newIngredient);
     }
+    this.editMode = false;
+    form.reset();
   }
 
-  ngOnDestroy(): void {
+  onClear(){
+    this.slForm.reset();
+    this.editMode = false;
+  }
 
+  onDelete(){
+    this.slService.deleteIngredient(this.editModeIndex)
+    this.onClear();
+
+  }
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
   }
 }
