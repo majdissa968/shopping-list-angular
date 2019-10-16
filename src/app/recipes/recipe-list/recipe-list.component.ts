@@ -1,6 +1,7 @@
 import { Recipe } from "./../recipe.model";
 import { Component, OnInit } from "@angular/core";
 import { RecipeService } from '../recipe.service';
+import { Router, ActivatedRoute } from '@angular/router';
 
 
 @Component({
@@ -14,9 +15,17 @@ import { RecipeService } from '../recipe.service';
 export class RecipeListComponent implements OnInit {
   recipes: Recipe[];
 
-  constructor(private recipeService: RecipeService ) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private recipeService: RecipeService) { }
 
   ngOnInit() {
     this.recipes = this.recipeService.getRecipes();
+  }
+
+
+  onNewRecipe() {
+    this.router.navigate(['new'], { relativeTo: this.route })
   }
 }
