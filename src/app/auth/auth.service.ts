@@ -1,23 +1,25 @@
+import { User } from './user.model';
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { catchError } from 'rxjs/operators';
-import { throwError } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { catchError, tap, reduce } from 'rxjs/operators';
+import { throwError, BehaviorSubject } from 'rxjs';
 
-interface AuthResponseData {
+export interface AuthResponseData {
     idToken: string;
     email: string;
     refreshToken: string;
     expiresIn: string;
     localId: string;
-    registered: boolean;
+    registered?: boolean;
 }
 
 @Injectable({
     providedIn: 'root'
 })
-
-
 export class AuthService {
+    user = new BehaviorSubject<User>(null);
+
+
     constructor(private http: HttpClient) { }
 
     signup(email: string, password: string) {
@@ -26,17 +28,68 @@ export class AuthService {
                 email: email,
                 password: password,
                 returnSecureToken: true
-            }).pipe(catchError(errorRes => {
-                let errorMessage = "An unknown error occurred";
-                if (!errorRes.error || !errorRes.error.error) {
-                    return throwError(errorMessage)
-                }
-                switch (errorRes.error.error.message) {
-                    case 'EMAIL_EXISTS':
-                        errorMessage = "this Email exists already"
-                }
-                return throwError(errorMessage)
-            }));
+            }).pipe(catchError(this.handelError), tap(resData => {
+                this.handelAuthentication(
+                    resData.email,
+                    resData.localId,
+                    resData.idToken,
+                    +resData.expiresIn
+                )
+            }))
+    }
+
+
+
+    login(email: string, password: string) {
+        return this.http.post<AuthResponseData>('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyC3eibU5n8ym8BxhRTc_cD1bC1Vz0pDovI',
+            {
+                email: email,
+                password: password,
+                returnSecureToken: true
+            }).pipe(catchError(this.handelError), tap(resData => {
+                this.handelAuthentication(
+                    resData.email,
+                    resData.localId,
+                    resData.idToken,
+                    +resData.expiresIn
+                )
+            }))
+    }
+
+    private handelAuthentication(
+        email: string,
+        serId: string,
+        token: string,
+        expiresIn: number
+    ) {
+        const expirationDate = new Date(new Date().getTime() + expiresIn + 1000);
+        const user = new User(
+            email,
+            serId,
+            token,
+            expirationDate)
+        this.user.next(user)
+    }
+
+
+    private handelError(errorRes: HttpErrorResponse) {
+        let errorMessage = "An unknown error occurred";
+        if (!errorRes.error || !errorRes.error.error) {
+            return throwError(errorMessage)
+        }
+        switch (errorRes.error.error.message) {
+            case 'EMAIL_EXISTS':
+                errorMessage = "this Email exists already";
+                break;
+            case "EMAIL_NOT_FOUND":
+                errorMessage = "this Email dose not exists"
+                break;
+            case 'INVALID_PASSWORD':
+                errorMessage = 'this password is not correct';
+                break;
+
+        }
+        return throwError(errorMessage)
     }
 }
 
