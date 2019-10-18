@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { User } from './user.model';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
@@ -20,7 +21,10 @@ export class AuthService {
     user = new BehaviorSubject<User>(null);
 
 
-    constructor(private http: HttpClient) { }
+    constructor(
+        private http: HttpClient,
+        private router:Router
+        ) { }
 
     signup(email: string, password: string) {
         return this.http
@@ -54,6 +58,12 @@ export class AuthService {
                     +resData.expiresIn
                 )
             }))
+    }
+
+
+    logout(){
+        this.user.next(null);
+        this.router.navigate(['/auth'])
     }
 
     private handelAuthentication(
