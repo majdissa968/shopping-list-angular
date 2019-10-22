@@ -1,3 +1,4 @@
+import { LoggingService } from './../logging.service';
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { Ingredient } from "../shared/ingredient.model";
 import { ShoppingListService } from "./shopping-list.service";
@@ -12,14 +13,17 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
   ingredients: Ingredient[];
   private igChangeDub: Subscription;
 
-  constructor(private slService: ShoppingListService) { }
+  constructor(
+    private slService: ShoppingListService,
+    private loggingService:LoggingService) { }
 
   ngOnInit() {
     this.ingredients = this.slService.getIngredients();
     this.igChangeDub = this.slService.ingredientsChanged.subscribe((ingredients: Ingredient[]) => {
       this.ingredients = ingredients;
 
-    })
+    });
+    this.loggingService.printLog('Hello from ShoppingList Component ngOnInit ')
   }
 
   onEditItem(index: number) {
