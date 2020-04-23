@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "secCourse": {
+    "shopinglist": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -65,18 +65,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "secCourse:build"
+            "browserTarget": "shopinglist:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "secCourse:build:production"
+              "browserTarget": "shopinglist:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "secCourse:build"
+            "browserTarget": "shopinglist:build"
           }
         },
         "test": {
@@ -113,15 +113,15 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "secCourse:serve"
+            "devServerTarget": "shopinglist:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "secCourse:serve:production"
+              "devServerTarget": "shopinglist:serve:production"
             }
           }
         }
       }
     }},
-  "defaultProject": "secCourse"
+  "defaultProject": "shopinglist"
 }
